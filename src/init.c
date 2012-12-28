@@ -67,7 +67,7 @@ void init_allegro_n_other(int argc, char *argv[])
     * usually does it all right. If there's a mistake, we exit to DOS
     */
    
-   if (install_sound(DIGI_NONE, MIDI_NONE, NULL) != 0) {
+   if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
       da_error_grave("%s %s", get_config_text("Error initialising sound system"), allegro_error);
       exit(1);
    }

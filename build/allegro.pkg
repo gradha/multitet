@@ -1,0 +1,27 @@
+# Package definition file for Allegro
+
+# Read by builder.pl on request from builder.in, containing
+# information on how to use Allegro from various compilers.
+
+# `standard' header files
+STDHDRS += allegro.h
+
+# options for building with djgpp
+DJGPP_RELEASE_LFLAGS += -lalleg
+DJGPP_DEBUG_LFLAGS += -lalld
+
+# options for building on Unix
+UNIX_RELEASE_LFLAGS += `allegro-config --libs`
+UNIX_DEBUG_LFLAGS += `allegro-config --static debug`
+
+# options for building with MSVC
+MSVC_RELEASE_LFLAGS += alleg.lib
+MSVC_DEBUG_LFLAGS += alld.lib
+
+# options for building with Watcom
+WATCOM_LFLAGS += "library alleg.lib"
+
+# options for building with Mingw32
+MINGW_RELEASE_LFLAGS += -lalleg
+MINGW_DEBUG_LFLAGS += -lalld
+

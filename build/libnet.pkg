@@ -1,0 +1,27 @@
+# Package definition file for Libnet
+
+# Read by builder.pl on request from builder.in, containing
+# information on how to use Libnet from various compilers.
+
+# `standard' header files
+STDHDRS += libnet.h
+
+# options for building with djgpp
+DJGPP_RELEASE_LFLAGS += -lnet
+DJGPP_DEBUG_LFLAGS += -lnet
+
+# options for building on Unix
+UNIX_RELEASE_LFLAGS += -lnet
+UNIX_DEBUG_LFLAGS += -lnet
+
+# options for building with MSVC
+MSVC_RELEASE_LFLAGS += libnet.lib wsock32.lib
+MSVC_DEBUG_LFLAGS += libnet.lib wsock32.lib
+
+# options for building with Watcom
+WATCOM_LFLAGS += "library libnet.lib"
+
+# options for building with Mingw32
+MINGW_RELEASE_LFLAGS += -lnet -lwsock32
+MINGW_DEBUG_LFLAGS += -lnet -lwsock32
+

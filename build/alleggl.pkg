@@ -1,0 +1,23 @@
+# Package definition file for AllegroGL
+
+# Read by builder.pl on request from builder.in, containing
+# information on how to use AllegroGL from various compilers.
+
+# Note: This file is untested, as of writing, and more options 
+# are needed for Unix (ideally, configure scripts...)
+
+# `standard' header files
+STDHDRS += alleggl.h
+
+# options for building on Unix
+UNIX_RELEASE_LFLAGS += -lagl -lGL -lGLU -lX11 -lXext -lXi -lXmu
+UNIX_DEBUG_LFLAGS += -lagld -lGL -lGLU -lX11 -lXext -lXi -lXmu
+
+# options for building with MSVC
+MSVC_RELEASE_LFLAGS += agl.lib gdi32.lib opengl32.lib glu32.lib
+MSVC_DEBUG_LFLAGS += agld.lib gdi32.lib opengl32.lib glu32.lib
+
+# options for building with Mingw32
+MINGW_RELEASE_LFLAGS += -lagl -lgdi32 -lopengl32 -lglu32
+MINGW_DEBUG_LFLAGS += -lagld -lgdi32 -lopengl32 -lglu32
+

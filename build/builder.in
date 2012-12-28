@@ -1,0 +1,46 @@
+# Parameter file, read by builder.pl. This contains various information
+# used to generate the makefiles, batch files, and .dsp project file.
+
+# name of the program
+NAME = multitet
+
+# packages used
+PACKAGES = allegro
+
+# Windows icon (optional)
+WINICON = icon.ico
+
+# where to put the object files
+OBJDIR = obj
+
+# where to put the output executables
+BINDIR = ./
+
+# options for building with djgpp
+DJGPP_RELEASE_CFLAGS = -Wall -m486 -O3 -ffast-math
+DJGPP_DEBUG_CFLAGS = -Wall -Werror -m486 -g -DDEBUGMODE=1
+DJGPP_RELEASE_LFLAGS = -s
+DJGPP_DEBUG_LFLAGS = -g
+
+# options for building on Unix
+UNIX_RELEASE_CFLAGS = -Wall -m486 -O3 -ffast-math
+UNIX_DEBUG_CFLAGS = -Wall -Werror -m486 -g -DDEBUGMODE=1
+UNIX_RELEASE_LFLAGS = -s
+UNIX_DEBUG_LFLAGS = -g
+
+# options for building with MSVC
+MSVC_RELEASE_CFLAGS = /W3 /GX /O2 /YX /FD
+MSVC_DEBUG_CFLAGS = /W3 /Gm /GX /ZI /Od /YX /FD /GZ /D "DEBUGMODE"
+MSVC_RELEASE_LFLAGS = 
+MSVC_DEBUG_LFLAGS = 
+
+# options for building with Watcom
+WATCOM_CFLAGS = -bt=dos4g -5s -s -zq
+WATCOM_LFLAGS = "option stack=128k" "system dos4g"
+
+# options for building with Mingw32
+MINGW_RELEASE_CFLAGS = -Wall -m486 -O3 -ffast-math
+MINGW_DEBUG_CFLAGS = -Wall -Werror -m486 -g -DDEBUGMODE=1
+MINGW_RELEASE_LFLAGS = -mwindows -s
+MINGW_DEBUG_LFLAGS = -mwindows -g
+

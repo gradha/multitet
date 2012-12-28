@@ -40,7 +40,7 @@ void intro(void)
       get_config_text("Made by Grzegorz Adam Hankiewicz"),
       320, 460, palette_color[0]);
    textout_centre(virtual_screen, font,
-      get_config_text("Special thanks to DJ Delorie,  Shawn Hargreaves and Robert Hoehne"),
+      get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"),
       320, 470, palette_color[0]);
 
    acquire_screen();

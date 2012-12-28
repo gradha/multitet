@@ -205,7 +205,7 @@ void draw_menu_back_in_buffer(void)
                           SCREEN_W>>1, SCREEN_H-50, menu_color, black_color);
    outline_textout_centre(virtual_screen, font, get_config_text("Made by Grzegorz Adam Hankiewicz"), 
                           SCREEN_W>>1, SCREEN_H-20, red_color, black_color);
-   outline_textout_centre(virtual_screen, font, get_config_text("Special thanks to DJ Delorie,  Shawn Hargreaves and Robert Hoehne"), 
+   outline_textout_centre(virtual_screen, font, get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"), 
                           SCREEN_W>>1, SCREEN_H-10, red_color, black_color);
 
    show_mouse(NULL);

@@ -82,7 +82,9 @@ void outro(void)
 {
    char **lines;
 
-   remove_sound();
+   //printf("Hey!\n");
+   exit(1);
+   //remove_sound();
 
    drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
    show_mouse(0);

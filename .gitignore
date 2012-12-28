@@ -1,6 +1,7 @@
 *.cfg
 *.o
 *.swp
+.DS_Store
 /lista
 /multitet
 /multitet.app/

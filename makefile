@@ -10,3 +10,6 @@ RELEASE_LFLAGS = -s -L/usr/local/lib $(ALLEGRO)
 DEBUG_LFLAGS = -g -L/usr/local/lib $(ALLEGRO)
 
 include makefile.all
+
+bundle: multitet
+	fixbundle multitet -128 icon128.pcx

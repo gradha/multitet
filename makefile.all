@@ -84,7 +84,13 @@ CLEAN_FILES = \
 	./multitet.ilk \
 	./multitet.pdb \
 	allegro.log \
+	multitet.app \
 	core
 
 clean:
-	rm -f $(CLEAN_FILES)
+	rm -Rf $(CLEAN_FILES)
+
+bundle: multitet
+	fixbundle multitet -128 icon128.pcx
+	cp data.dat multitet.app/Contents/Resources
+	cp ??text.cfg multitet.app/Contents/Resources

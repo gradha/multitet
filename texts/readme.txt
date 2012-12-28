@@ -7,7 +7,7 @@ message translations.
 If you are interested in translating Multitet, ignore the allegro
 subdirectory (unless you want to translate those messages too)
 and translate entext.cfg to your language, then send it to me at
-gradha@users.sourceforge.net for inclusion in the game, after you
+multitet@gradha.imap.cc for inclusion in the game, after you
 have verified the translation with your own copy of Multitet.
 
 To test your translation, copy the ??text.cfg you have written to

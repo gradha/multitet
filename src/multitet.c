@@ -1,6 +1,6 @@
 /* Tetris clone started by Grzegorz Adam Hankiewicz in May of 1997.
- * You can find me at http://gradha.infierno.org/. Email: gradha@iname.com
- * Visit Gogosoftware at http://welcome.to/gogosoftware/
+ * You can find me at http://elhaso.com/. Email: multitet@gradha.imap.cc
+ * Visit Electric Hands Software at http://elhaso.com/
  *
  * This game would not exist if it was not for Allegro, the wonderful
  * game library made by Shawn Hargreaves. You can contact Shawn at

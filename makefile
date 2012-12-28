@@ -2,9 +2,11 @@
 
 CC = gcc
 EXE =
-RELEASE_CFLAGS = -Wall -m486 -O3 -ffast-math
-DEBUG_CFLAGS = -Wall -Werror -m486 -g -DDEBUGMODE=1
-RELEASE_LFLAGS = -s `allegro-config --libs`
-DEBUG_LFLAGS = -g `allegro-config --static debug`
+RELEASE_CFLAGS = -Wall -O3 -arch i386
+DEBUG_CFLAGS = -Wall -Werror -g -DDEBUGMODE=1 -arch i386
+ALLEGRO=-L/usr/local/lib -lalleg -framework Cocoa -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework QuickTime
+
+RELEASE_LFLAGS = -s -L/usr/local/lib $(ALLEGRO)
+DEBUG_LFLAGS = -g -L/usr/local/lib $(ALLEGRO)
 
 include makefile.all

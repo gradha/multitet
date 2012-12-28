@@ -4,13 +4,13 @@ ifdef DEBUGMODE
 
 # debug build
 CFLAGS = $(DEBUG_CFLAGS)
-LFLAGS = $(DEBUG_LFLAGS)
+LFLAGS = -arch i386 $(DEBUG_LFLAGS)
 
 else
 
 # release build
 CFLAGS = $(RELEASE_CFLAGS)
-LFLAGS = $(RELEASE_LFLAGS)
+LFLAGS = -arch i386 $(RELEASE_LFLAGS)
 
 endif
 

@@ -1,17 +1,14 @@
 #ifndef MULTITET_H
 #define MULTITET_H
 
-#include <allegro/palette.h>
-#include <allegro/gfx.h>
-#include <allegro/datafile.h>
-#include <allegro/color.h>
+#include <allegro.h>
 
 /* number of ticks a second has... */
 #define SECOND 30
 
-#define GAME_NAME "Multitet 1.32"
+#define GAME_NAME "Multitet 1.33"
 #define GAME_VER        1
-#define GAME_SUB_VER    32
+#define GAME_SUB_VER    33
 
 #define     STR_KEYS       "KEYS"
 #define     STR_SOUND      "SOUND"

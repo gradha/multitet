@@ -1,8 +1,7 @@
 #ifndef MISC_H
 #define MISC_H
 
-#include <allegro/gfx.h>
-#include <allegro/text.h>
+#include <allegro.h>
 
 /******************
  ***** misc.h *****
@@ -16,7 +15,7 @@
 extern int vol_fx, vol_midi, which_music;
 extern int black_color, white_color, menu_color, red_color, prog_y;
 
-void wait(int wait_time);
+void multitet_wait(int wait_time);
 void hot_keys(void);
 void report_progress (const char *txt, ...);
 int any_input_used(void);

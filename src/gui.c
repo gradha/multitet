@@ -490,6 +490,7 @@ void menu(void)
                      set_mouse_sprite(0);
                      drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
                      draw_menu_back_in_buffer();
+                     set_palette(datafile[PAL_MAIN].dat);
                      show_mouse(screen);
                      clear_keybuf();
                      break;

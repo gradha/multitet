@@ -37,6 +37,7 @@ void select_language(void)
    const char *lang = "en"; /* default language */
    
    set_palette(desktop_palette);
+   clear(screen);
    _retrieve_available_languages();
 
    if (!_num_available_languages) {

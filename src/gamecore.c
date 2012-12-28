@@ -691,7 +691,9 @@ static void _init_game_variables(void)
 
    for (xb = 0; xb < 2; xb++) {
       lines[xb] = total_lines[xb] = score[xb] = level[xb] = _last[xb] = 0;
-      next_score[xb] = high_scores[xb].score;
+      lines[xb] = 10;
+      level[xb] = 1;
+      next_score[xb] = high_scores[0].score;
 
       uszprintf(lines_buf[xb], LINES_BUF_SIZE, "%s %d",
          get_config_text("Lines to next level:"), lines[xb]);

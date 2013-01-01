@@ -162,7 +162,7 @@ static void _correct_menu_dialog(DIALOG *dialog)
       sound_dlg[1].d2 = vol_midi >> 3;
       vol_fx --; vol_midi--;
 
-      get_music[14] = '0' + which_music;
+      get_music[14] = '1' + which_music;
 
       uszprintf(_dummy[2], _DUMMY_SIZE, "%s %d",
          get_config_text("MUSIC"), which_music);

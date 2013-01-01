@@ -186,16 +186,15 @@ void dibuja_tablero(int wp)
 
    /* Scoreboard */
    blit(virtual_screen, screen, 250, temp1, 250, temp1, 132, 180);
+   release_screen();
+#endif
 
    if (pierde[wp]!=0) {
-      outline_textout_centre(screen, datafile[BIG_FONT].dat,
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
          get_config_text("GAME OVER !"), 132+(375*wp), 100,
          red_color, black_color);
    }
-   release_screen();
-#else
    stretch_virtual_screen();
-#endif
 }
 
 // Draws the whole of the virtual screen to the real screen.
@@ -211,15 +210,17 @@ void draw_menu_back_in_buffer(void)
 {
    blit(background, virtual_screen, 0, 0, 0, 0, background->w, background->h);
    draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
-                 (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1),
-                  50);
+      (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
 
-   outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("Press F1 for help"),
-                          TSCREEN_W>>1, TSCREEN_H-50, menu_color, black_color);
-   outline_textout_centre(virtual_screen, font, get_config_text("Made by Grzegorz Adam Hankiewicz"),
-                          TSCREEN_W>>1, TSCREEN_H-20, red_color, black_color);
-   outline_textout_centre(virtual_screen, font, get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"),
-                          TSCREEN_W>>1, TSCREEN_H-10, red_color, black_color);
+   outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+      get_config_text("Press F1 for help"), TSCREEN_W>>1, TSCREEN_H-50,
+      menu_color, black_color);
+   outline_textout_centre(virtual_screen, font,
+      get_config_text("Made by Grzegorz Adam Hankiewicz"),
+      TSCREEN_W>>1, TSCREEN_H-20, red_color, black_color);
+   outline_textout_centre(virtual_screen, font,
+      get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"),
+      TSCREEN_W>>1, TSCREEN_H-10, red_color, black_color);
 
    show_mouse(NULL);
 #if OLD_DIRTY_RECTANGLES
@@ -446,11 +447,11 @@ int main(int argc, char *argv[])
    }
 
    set_palette(desktop_palette);
-   clear_bitmap(screen);
 
    init_allegro_n_other(argc,  argv);
 
    clear_bitmap(virtual_screen);
+   stretch_virtual_screen();
    ASSERT(datafile);
    ASSERT(datafile[PAL_MAIN].dat);
    set_palette(datafile[PAL_MAIN].dat);

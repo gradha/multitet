@@ -114,7 +114,7 @@ void one_player(void)
          given_points[g], 22*11+105, 335 + 15*g, white_color, black_color);
    }
    
-   blit(virtual_screen, screen, 251, 285, 251, 285, 389, 286);
+   stretch_virtual_screen();
    
    _dibuja_ficha(0);
    dibuja_tablero(0);

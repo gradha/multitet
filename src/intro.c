@@ -33,8 +33,8 @@ void intro(void)
    _create_title();
 
    draw_rle_sprite(virtual_screen, datafile[BMP_TITLE].dat, 
-      (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->w>>1),
-      (SCREEN_H>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->h>>1));
+      (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->w>>1),
+      (TSCREEN_H>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->h>>1));
                    
    textout_centre(virtual_screen, font,
       get_config_text("Made by Grzegorz Adam Hankiewicz"),
@@ -43,9 +43,7 @@ void intro(void)
       get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"),
       320, 470, palette_color[0]);
 
-   acquire_screen();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
+   stretch_virtual_screen();
    
    play_sample(datafile[WELCOME].dat, 255, 128, 1000, 0);
    fade_in(datafile[PAL_TITLE].dat, 1);
@@ -90,14 +88,14 @@ void outro(void)
    show_mouse(0);
 
    acquire_screen();
-   rectfill(screen, 0, 0, SCREEN_W-1, SCREEN_H-1, makecol(0, 0, 0));
+   rectfill(screen, 0, 0, TSCREEN_W-1, TSCREEN_H-1, makecol(0, 0, 0));
 
    /* Show 'bye, bye' screen... */
    lines = get_multiple_config_text("bye_bye_message");
    if (!lines)
       outline_textout_centre(screen, datafile[BIG_FONT].dat,
          get_config_text("Internal error reading multiple lines"), 
-         SCREEN_W/2, SCREEN_H/2, menu_color, black_color);
+         TSCREEN_W/2, TSCREEN_H/2, menu_color, black_color);
    else {
       int f;
       for (f = 0; lines[f]; f++) {
@@ -114,4 +112,4 @@ void outro(void)
 
 }
 
-
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

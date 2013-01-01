@@ -14,6 +14,9 @@
 #define     STR_SOUND      "SOUND"
 #define     STR_GAME       "GAME"
 
+#define		TSCREEN_W		640
+#define		TSCREEN_H		480
+
 /**********************
  ***** multitet.h *****
  **********************/
@@ -36,5 +39,6 @@ extern PALETTE pal_title, pal_pause;
 void dibuja_tablero(int wp);
 void draw_menu_back_in_buffer(void);
 void redefine_keys(void);
+void stretch_virtual_screen();
 
 #endif

@@ -149,4 +149,4 @@ static char *_lang_listbox_getter(int index, int *list_size)
    }
 }
 
-
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

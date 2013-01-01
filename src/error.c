@@ -43,3 +43,4 @@ void da_error_grave(const char *txt, ...)
    abort();
 }
 
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

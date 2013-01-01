@@ -616,10 +616,14 @@ static void _lineas(int wp)
       case 0:
          if (death_match == 1)
             _sube(wp, lin);
+#if OLD_DIRTY_RECTANGLES
          acquire_screen();
          blit(virtual_screen, screen, 0, 0, 0, 0, 397, 320);
          blit(virtual_screen, screen, 0, 319, 0, 319, 262, 160);
          release_screen();
+#else
+		 stretch_virtual_screen();
+#endif
          if (lin != 0)
             play_sample(datafile[MAKELINE].dat, 255, 128, 1000, 0);
          if (lin == 4)
@@ -628,10 +632,14 @@ static void _lineas(int wp)
       case 1:
          if (death_match == 1)
             _sube(wp, lin);
+#if OLD_DIRTY_RECTANGLES
          acquire_screen();
          blit(virtual_screen, screen, 397, 0, 397, 0, 242, 285);
          blit(virtual_screen, screen, 251, 285, 251, 285, 388, 286);
          release_screen();
+#else
+		 stretch_virtual_screen();
+#endif
          if (lin != 0)
             play_sample(datafile[MAKELINE].dat, 255, 128, 1000, 0);
          if (lin == 4)
@@ -722,3 +730,4 @@ static void _init_game_variables(void)
    _starting_game_up = 2;
 }
 
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

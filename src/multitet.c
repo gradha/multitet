@@ -55,6 +55,7 @@
 
 #include <allegro.h> /* Needed header to use Allegro */
 
+#define _WINDOWED_MARGIN            70
 
 /* variable for _inc_ticks(); in init.c */
 volatile int tick_counter;
@@ -76,7 +77,7 @@ PALETTE pal_title, pal_pause;
 void dibuja_tablero(int wp)
 {
    int x,y,temp1,temp2;
-   
+
    uszprintf(lines_buf[wp], LINES_BUF_SIZE, "%s %d",
       get_config_text("Lines to next level:"), lines[wp]);
    uszprintf(total_lines_buf[wp], TOTAL_LINES_BUF_SIZE, "%s %d",
@@ -106,7 +107,7 @@ void dibuja_tablero(int wp)
       }
       temp2 += 22;
    }
-   
+
    /* Now we draw the next block... if the player wants to see it... */
    if (visible_blocks == 1) {
       if (wp == 0)   temp2 = 140;
@@ -127,7 +128,7 @@ void dibuja_tablero(int wp)
          temp2 += 22;
       }
    }
-   
+
    /* Print the scores... */
    if (wp == 0) {
       temp1=0;
@@ -160,6 +161,7 @@ void dibuja_tablero(int wp)
    outline_textout(virtual_screen, datafile[SMALL_FONT].dat, next_score_buf[wp],
       261,110+temp2, white_color, black_color);
 
+#if OLD_DIRTY_RECTANGLES
    acquire_screen();
 
    temp2 = 19;
@@ -178,40 +180,55 @@ void dibuja_tablero(int wp)
       }
       temp2 += 22;
    }
-   
+
    if (wp == 0)   temp1 = 20;
    else           temp1 = 285;
 
    /* Scoreboard */
    blit(virtual_screen, screen, 250, temp1, 250, temp1, 132, 180);
 
-   release_screen();
-
    if (pierde[wp]!=0) {
       outline_textout_centre(screen, datafile[BIG_FONT].dat,
          get_config_text("GAME OVER !"), 132+(375*wp), 100,
          red_color, black_color);
    }
+   release_screen();
+#else
+   stretch_virtual_screen();
+#endif
+}
+
+// Draws the whole of the virtual screen to the real screen.
+void stretch_virtual_screen()
+{
+   acquire_screen();
+   stretch_blit(virtual_screen, screen, 0, 0,
+      virtual_screen->w, virtual_screen->h, 0, 0, SCREEN_W, SCREEN_H);
+   release_screen();
 }
 
 void draw_menu_back_in_buffer(void)
 {
    blit(background, virtual_screen, 0, 0, 0, 0, background->w, background->h);
-   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                 (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
+   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+                 (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1),
                   50);
 
-   outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("Press F1 for help"), 
-                          SCREEN_W>>1, SCREEN_H-50, menu_color, black_color);
-   outline_textout_centre(virtual_screen, font, get_config_text("Made by Grzegorz Adam Hankiewicz"), 
-                          SCREEN_W>>1, SCREEN_H-20, red_color, black_color);
-   outline_textout_centre(virtual_screen, font, get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"), 
-                          SCREEN_W>>1, SCREEN_H-10, red_color, black_color);
+   outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("Press F1 for help"),
+                          TSCREEN_W>>1, TSCREEN_H-50, menu_color, black_color);
+   outline_textout_centre(virtual_screen, font, get_config_text("Made by Grzegorz Adam Hankiewicz"),
+                          TSCREEN_W>>1, TSCREEN_H-20, red_color, black_color);
+   outline_textout_centre(virtual_screen, font, get_config_text("Special thanks to DJ Delorie, Shawn Hargreaves and Robert Hoehne"),
+                          TSCREEN_W>>1, TSCREEN_H-10, red_color, black_color);
 
    show_mouse(NULL);
+#if OLD_DIRTY_RECTANGLES
    acquire_screen();
    blit(virtual_screen, screen, 0, 0, 0, 0, virtual_screen->w, virtual_screen->h);
    release_screen();
+#else
+   stretch_virtual_screen();
+#endif
    show_mouse(screen);
 }
 
@@ -222,37 +239,34 @@ void redefine_keys(void)
    int counter_2;
 
    show_mouse(NULL);
-   
+
    play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
-   
+
    blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                 (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
+   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+                 (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1),
                   50);
-   
+
    outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PRESS D TO USE DEFAULT KEYS"), 320, 200, menu_color,  black_color);
    outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PRESS ANY OTHER TO REDEFINE KEYS"), 320, 240, menu_color,  black_color);
 
-   acquire_screen();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
-   
+   stretch_virtual_screen();
+
    while (any_input_used());
 
    if ((readkey() >> 8)==KEY_D) {
-      TECLA_1_UP=KEY_UP, TECLA_1_DOWN=KEY_DOWN, TECLA_1_LEFT=KEY_LEFT, 
-      TECLA_1_RIGHT=KEY_RIGHT, TECLA_2_UP=KEY_W, TECLA_2_DOWN=KEY_S, 
-      TECLA_2_LEFT=KEY_A, TECLA_2_RIGHT=KEY_D, TECLA_MUSIC=KEY_M, 
+      TECLA_1_UP=KEY_UP, TECLA_1_DOWN=KEY_DOWN, TECLA_1_LEFT=KEY_LEFT,
+      TECLA_1_RIGHT=KEY_RIGHT, TECLA_2_UP=KEY_W, TECLA_2_DOWN=KEY_S,
+      TECLA_2_LEFT=KEY_A, TECLA_2_RIGHT=KEY_D, TECLA_MUSIC=KEY_M,
       TECLA_PAUSE=KEY_P;
-      
+
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("DEFAULT KEYS SET"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("DEFAULT KEYS SET"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       counter_2=tick_counter;
       do { yield_timeslice();
@@ -260,134 +274,121 @@ void redefine_keys(void)
    } else {
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 1. PRESS A KEY FOR LEFT"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 1. PRESS A KEY FOR LEFT"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_1_LEFT=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 1. PRESS A KEY FOR RIGHT"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 1. PRESS A KEY FOR RIGHT"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_1_RIGHT=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 1. PRESS A KEY FOR ROTATE"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 1. PRESS A KEY FOR ROTATE"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_1_UP=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 1. PRESS A KEY FOR DOWN"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 1. PRESS A KEY FOR DOWN"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_1_DOWN=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 2. PRESS A KEY FOR LEFT"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 2. PRESS A KEY FOR LEFT"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_2_LEFT=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 2. PRESS A KEY FOR RIGHT"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 2. PRESS A KEY FOR RIGHT"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_2_RIGHT=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 2. PRESS A KEY FOR ROTATE"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 2. PRESS A KEY FOR ROTATE"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_2_UP=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PLAYER 2. PRESS A KEY FOR DOWN"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PLAYER 2. PRESS A KEY FOR DOWN"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_2_DOWN=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PRESS A KEY FOR SWITCHING MUSIC"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PRESS A KEY FOR SWITCHING MUSIC"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_MUSIC=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
       blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                    (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                     50);
-      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, get_config_text("PRESS A KEY FOR PAUSE"), 320, 220, menu_color,  black_color);
-      acquire_screen();
-      blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-      release_screen();
+      draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+         (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+      outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+         get_config_text("PRESS A KEY FOR PAUSE"), 320, 220,
+         menu_color,  black_color);
+      stretch_virtual_screen();
       clear_keybuf();
       TECLA_PAUSE=readkey() >> 8;
-   
+
       play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
    }
 
    blit(background, virtual_screen, 0, 0, 0, 0, 640, 480);
-   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat, 
-                 (SCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 
-                  50);
-   acquire_screen();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
+   draw_rle_sprite(virtual_screen, datafile[BMP_TETRIS].dat,
+      (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TETRIS].dat)->w>>1), 50);
+   stretch_virtual_screen();
    show_mouse(screen);
 }
 
@@ -398,8 +399,8 @@ void redefine_keys(void)
 
 int main(int argc, char *argv[])
 {
-   int f;
-   
+   int f, w, h;
+
    /* Initialise Allegro and its components */
    install_allegro(SYSTEM_AUTODETECT, &errno, atexit);
    set_config_file("multitet.cfg");
@@ -415,20 +416,43 @@ int main(int argc, char *argv[])
       if (ustricmp(argv[x],  "-lang") == 0)
          load_language ++;
 */
+   // Try to detect desktop size and set a windowed mode to fit that.
+   if (get_desktop_resolution(&w, &h) == 0) {
+      if (w >= 800 && h >= 600) {
+         // Try to scale the screen withinn the specified bounds.
+         const int max_w = w - ((float)w / (float)h * _WINDOWED_MARGIN);
+         const int max_h = h - _WINDOWED_MARGIN;
 
-   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 640, 480))
-      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 640, 480))
+         float factor = max_w / (float)TSCREEN_W;
+         w = TSCREEN_W * factor;
+         h = TSCREEN_H * factor;
+
+         if (h > max_h) {
+            factor = max_h / (float)h;
+            w = w * factor;
+            h = h * factor;
+         }
+      }
+      printf("Will stretch to %d,%d\n", w, h);
+   } else {
+      w = 640; h = 480;
+   }
+
+   set_color_depth(8);
+   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, w, h, 0, 0)) {
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0)) {
          da_error_grave(allegro_error);
+      }
+   }
 
    set_palette(desktop_palette);
    clear_bitmap(screen);
 
-   srand(time(NULL));
-   init_config();
-
    init_allegro_n_other(argc,  argv);
 
-   clear_bitmap(screen);
+   clear_bitmap(virtual_screen);
+   ASSERT(datafile);
+   ASSERT(datafile[PAL_MAIN].dat);
    set_palette(datafile[PAL_MAIN].dat);
    show_mouse(0);
    set_mouse_sprite(0);
@@ -441,7 +465,7 @@ int main(int argc, char *argv[])
          break;
    if (!f)
       intro();
-      
+
    drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 
    /* The menu stuff comes here... */
@@ -458,3 +482,5 @@ int main(int argc, char *argv[])
    /*End of game */
 }
 END_OF_MAIN();
+
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

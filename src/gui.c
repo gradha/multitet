@@ -87,6 +87,17 @@ int actual_dlg_width;  /* This is the biggest text width in pixels
                         * of the actual dialog
                         */
 
+static virtual_do_dialog(DIALOG *dialog, int focus_obj)
+{
+   DIALOG_PLAYER *player = init_dialog(dialog, focus_obj);
+
+   while (update_dialog(player)) {
+      stretch_virtual_screen();
+   }
+
+   return shutdown_dialog(player);
+}
+
 static int _update_dialog_volume()
 {
    vol_fx   = MIN(sound_dlg[0].d2<<3, 255);
@@ -129,12 +140,12 @@ static void _correct_menu_dialog(DIALOG *dialog)
          options_dlg[1].dp =(void*)get_config_text("DEATHMATCH Mode!!!");
       else
          options_dlg[1].dp =(void*)get_config_text("Normal Mode");
-         
+
       if (visible_blocks)
          options_dlg[3].dp =(void*)get_config_text("Next block visible");
       else
          options_dlg[3].dp =(void*)get_config_text("Next block hidden");
-         
+
       if (death_match)
          uszprintf(_death_string, _DEATH_STRING_SIZE, "%s %d",
             get_config_text("Death lines:"), death_lines);
@@ -144,7 +155,7 @@ static void _correct_menu_dialog(DIALOG *dialog)
    }
    else if (dialog == sound_dlg) {
       char get_music[] = "playing_music_x";
-   
+
       sound_dlg[3].dp =(void*) get_config_text("Back");
       vol_fx ++; vol_midi++;
       sound_dlg[0].d2 = vol_fx >> 3;
@@ -182,7 +193,7 @@ static void _correct_menu_dialog(DIALOG *dialog)
          /* Our customized button found. Change it's properties. */
          dialog[f].h = text_height(datafile[BIG_FONT].dat);
          dialog[f].w = text_length(datafile[BIG_FONT].dat, dialog[f].dp);
-         dialog[f].x =(SCREEN_W>>1) -(w>>1);
+         dialog[f].x =(TSCREEN_W>>1) -(w>>1);
       }
 
       f++;
@@ -196,39 +207,31 @@ static void _correct_menu_dialog(DIALOG *dialog)
 
 static int _cen_text_proc(int msg, DIALOG *d, int c)
 {
+   BITMAP *target = gui_get_screen();
    c = text_length(datafile[BIG_FONT].dat, d->dp) + 40;
 
    switch(msg) {
       case MSG_DRAW:
 
-         acquire_screen();
-         blit(virtual_screen, screen, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
+         blit(background, target, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
             c, text_height(datafile[BIG_FONT].dat));
-         outline_textout_centre(screen, datafile[BIG_FONT].dat,
+         outline_textout_centre(target, datafile[BIG_FONT].dat,
                                  d->dp, d->x, d->y, 8, black_color);
-         release_screen();
          break;
 
       case MSG_START:
 
-         show_mouse(NULL);
-         acquire_screen();
-         blit(virtual_screen, screen, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
+         blit(background, target, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
             c, text_height(datafile[BIG_FONT].dat));
-         outline_textout_centre(screen, datafile[BIG_FONT].dat,
-                                 d->dp, d->x, d->y, 8, black_color);
-         release_screen();
          show_mouse(screen);
+         outline_textout_centre(target, datafile[BIG_FONT].dat,
+                                 d->dp, d->x, d->y, 8, black_color);
          break;
 
       case MSG_END:
-   
-         show_mouse(NULL);
-         acquire_screen();
-         blit(virtual_screen, screen, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
+
+         blit(background, target, d->x-(c>>1), d->y, d->x-(c>>1), d->y,
             c, text_height(datafile[BIG_FONT].dat));
-         release_screen();
-         show_mouse(screen);
          break;
    }
 
@@ -238,8 +241,8 @@ static int _cen_text_proc(int msg, DIALOG *d, int c)
 
 /* _button_proc:
  *  A button object(the dp field points to the text string). This object
- *  can be selected by clicking on it with the mouse or by pressing its 
- *  keyboard shortcut. If the D_EXIT flag is set, selecting it will close 
+ *  can be selected by clicking on it with the mouse or by pressing its
+ *  keyboard shortcut. If the D_EXIT flag is set, selecting it will close
  *  the dialog, otherwise it will toggle on and off.
  *  Ripped from Allegro's sources & modified
  */
@@ -247,6 +250,7 @@ static int _button_proc(int msg, DIALOG *d, int c)
 {
    int state1, state2,text_col;
    int swap,p_he,p_w,p_h;
+   BITMAP *target = gui_get_screen();
 
    switch(msg) {
 
@@ -257,24 +261,19 @@ static int _button_proc(int msg, DIALOG *d, int c)
 
       case MSG_END:
 
-         show_mouse(NULL);
-         acquire_screen();
-
-         blit(virtual_screen, screen, d->x, d->y, d->x, d->y,
+         blit(background, target, d->x, d->y, d->x, d->y,
               text_length(datafile[BIG_FONT].dat, d->dp),
               text_height(datafile[BIG_FONT].dat));
-
          if (d->flags & D_GOTFOCUS) {
             p_w = ((RLE_SPRITE *)datafile[POINTER].dat)->w;
             p_h = ((RLE_SPRITE *)datafile[POINTER].dat)->h;
             p_he = (d->h/2) -(p_h /2);
 
-            blit(virtual_screen, screen, -p_w+d->x-p_w, d->y+p_he,
+            blit(background, target, -p_w+d->x-p_w, d->y+p_he,
                -p_w+d->x-p_w, d->y+p_he, p_w, p_h);
-            blit(virtual_screen, screen, d->x+actual_dlg_width+p_w, d->y+p_he,
+            blit(background, target, d->x+actual_dlg_width+p_w, d->y+p_he,
                d->x+actual_dlg_width+p_w, d->y+p_he, p_w,p_h);
          }
-         release_screen();
          show_mouse(screen);
          break;
 
@@ -291,24 +290,21 @@ static int _button_proc(int msg, DIALOG *d, int c)
          p_h = ((RLE_SPRITE *)datafile[POINTER].dat)->h;
          p_he = (d->h/2) -(p_h /2);
 
-
-         acquire_screen();
-         outline_textout(screen, datafile[BIG_FONT].dat, d->dp, d->x, d->y,
-            8, black_color);
+         outline_textout(target, datafile[BIG_FONT].dat,
+            d->dp, d->x, d->y, 8, black_color);
 
          if (d->flags & D_GOTFOCUS) {
-            draw_rle_sprite(screen, datafile[POINTER].dat,
+            draw_rle_sprite(target, datafile[POINTER].dat,
                -p_w+d->x-p_w, d->y+p_he);
-            draw_rle_sprite(screen, datafile[POINTER].dat,
+            draw_rle_sprite(target, datafile[POINTER].dat,
                d->x+actual_dlg_width+p_w, d->y+p_he);
          }
          else {
-            blit(virtual_screen, screen, -p_w+d->x-p_w, d->y+p_he,
+            blit(background, target, -p_w+d->x-p_w, d->y+p_he,
                -p_w+d->x-p_w, d->y+p_he, p_w, p_h);
-            blit(virtual_screen, screen, d->x+actual_dlg_width+p_w, d->y+p_he,
+            blit(background, target, d->x+actual_dlg_width+p_w, d->y+p_he,
                d->x+actual_dlg_width+p_w, d->y+p_he, p_w, p_h);
          }
-         release_screen();
 
          break;
 
@@ -320,15 +316,15 @@ static int _button_proc(int msg, DIALOG *d, int c)
           if (d->flags & D_EXIT) {
              return D_CLOSE;
           }
-      
+
           /* or just toggle */
           d->flags ^= D_SELECTED;
-          
+
           scare_mouse();
           SEND_MESSAGE(d, MSG_DRAW, 0);
           unscare_mouse();
           break;
-      
+
       case MSG_CLICK:
           /* what state was the button originally in? */
           state1 = d->flags & D_SELECTED;
@@ -336,14 +332,14 @@ static int _button_proc(int msg, DIALOG *d, int c)
              swap = FALSE;
           else
              swap = state1;
-      
+
           /* track the mouse until it is released */
           while (gui_mouse_b()) {
              state2 =((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
                  (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
              if (swap)
                 state2 = !state2;
-      
+
              /* redraw? */
              if (((state1) &&(!state2)) ||((state2) &&(!state1))) {
                 d->flags ^= D_SELECTED;
@@ -352,17 +348,17 @@ static int _button_proc(int msg, DIALOG *d, int c)
                 SEND_MESSAGE(d, MSG_DRAW, 0);
                 unscare_mouse();
              }
-      
+
              /* let other objects continue to animate */
              broadcast_dialog_message(MSG_IDLE, 0);
           }
-      
+
           /* should we close the dialog? */
           if ((d->flags & D_SELECTED) &&(d->flags & D_EXIT)) {
              d->flags ^= D_SELECTED;
              return D_CLOSE;
           }
-          break; 
+          break;
    }
 
    return D_O_K;
@@ -382,7 +378,7 @@ void menu(void)
    while (ret != game_dlg_exit) {
       _correct_menu_dialog(game_dlg);
       hot_keys();    /* Ugly fix to update the music */
-      ret = do_dialog(game_dlg,old_ret);
+      ret = virtual_do_dialog(game_dlg,old_ret);
 
       switch (ret) {
          case 0:  /* User selected one player game */
@@ -404,7 +400,7 @@ void menu(void)
 
                _correct_menu_dialog(options_dlg);
                hot_keys();    /* Ugly fix to update the music */
-               ret = do_dialog(options_dlg, old_ret);
+               ret = virtual_do_dialog(options_dlg, old_ret);
 
                switch(ret) {
 
@@ -412,17 +408,17 @@ void menu(void)
 
                      _correct_menu_dialog(sound_dlg);
                      _update_dialog_volume();
-         
+
                      ret = old_ret = 0;
                      while (ret != sound_dlg_exit) {
-         
+
                         _correct_menu_dialog(sound_dlg);
 
                         drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
                         hot_keys();    /* Ugly fix to update the music */
-                        ret = do_dialog(sound_dlg, old_ret);
-         
+                        ret = virtual_do_dialog(sound_dlg, old_ret);
+
                         switch(ret) {
 
                            case 2:
@@ -432,7 +428,7 @@ void menu(void)
                                  music(1);
                               draw_menu_back_in_buffer();
                               break;
-         
+
                            case -1:
                               ret = sound_dlg_exit;
                               break;
@@ -440,14 +436,14 @@ void menu(void)
                               break;
                         }
                         old_ret = ret;
-         
+
                      }
-         
+
                      /* Restore the previous menu data */
                      drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
                      draw_menu_back_in_buffer();
                      clear_keybuf();
-         
+
                      ret = old_ret = 0;
                      break;
 
@@ -484,7 +480,7 @@ void menu(void)
 
                      drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
                      select_language();
-                
+
                      /* Restore the previous menu data */
                      show_mouse(0);
                      set_mouse_sprite(0);
@@ -572,7 +568,7 @@ void prepare_menu_graphically(void)
    show_mouse(screen);
 
    player = init_dialog(game_dlg, -1);
-   
+
    update_dialog(player);
 }
 
@@ -593,3 +589,4 @@ static void _save_config(void)
    set_config_int(STR_GAME,"VISIBLE_BLOCKS",visible_blocks);
 }
 
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

@@ -77,10 +77,8 @@ void print_high_scores(int number)
       }
    }
 
-   acquire_screen();
    vsync();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
+   stretch_virtual_screen();
 }
 
 /* A player got a high score. We read the keyboard input and modify the high
@@ -114,9 +112,7 @@ void got_score(int player)
 
    outline_textout_centre(virtual_screen, datafile[BIG_FONT].dat, txt, 320, 220, menu_color, black_color);
    clear_keybuf();
-   acquire_screen();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
+   stretch_virtual_screen();
 
    while (any_input_used());
 
@@ -146,9 +142,7 @@ void got_score(int player)
          blit(background, virtual_screen, 0, 220, 0, 220, 640, 40);
          outline_textout_centre(virtual_screen,  datafile[BIG_FONT].dat, 
             txt, 320, 220, menu_color, black_color);
-         acquire_screen();
-         blit(virtual_screen, screen, 0, 220, 0, 220, 640, 40);
-         release_screen();
+		 stretch_virtual_screen();
       }
    }
    play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
@@ -191,3 +185,5 @@ int save_scores(void)
    }
    return 1;
 }
+
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

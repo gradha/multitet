@@ -11,7 +11,8 @@
 #include "langsel.h"
 #include <allegro.h>
 
-static void _reserve_memory_for_bitmaps(void);
+static void _reserve_memory_for_bitmaps1(void);
+static void _reserve_memory_for_bitmaps2(void);
 static void _process_blocks(void);
 static void _inc_ticks(void);
 static void _init_timer(void);
@@ -41,6 +42,14 @@ static void _create_pause_screen(void)
 
 void init_allegro_n_other(int argc, char *argv[])
 {
+   srand(time(NULL));
+
+   /* Create the screen buffers... */
+   _reserve_memory_for_bitmaps1();
+   ASSERT(virtual_screen);
+
+   init_config();
+
    report_progress(get_config_text("Allegro initialized."));
    report_progress("%s %s", get_config_text("Gogosoftware presents: Multitet"), GAME_NAME);
    report_progress("%s %s", get_config_text("This game was compiled with"), allegro_id);
@@ -86,8 +95,7 @@ void init_allegro_n_other(int argc, char *argv[])
    report_progress(get_config_text("...data file loaded"));
    report_progress(get_config_text("Starting game. Press a key..."));
 
-   /* Create the screen buffers... */
-   _reserve_memory_for_bitmaps();
+   _reserve_memory_for_bitmaps2();
 
    _process_blocks();
 
@@ -102,7 +110,6 @@ void init_allegro_n_other(int argc, char *argv[])
    menu_color = palette_color[8];
 
    fade_out(2);
-   
    atexit(_free_all_mem);
 }
 
@@ -129,12 +136,25 @@ static void _free_all_mem(void)
    unload_datafile(datafile);
 }
 
-static void _reserve_memory_for_bitmaps(void)
+static float _mouse_factor_x, _mouse_factor_y;
+
+int multitet_gui_mouse_x() { return mouse_x * _mouse_factor_x; }
+int multitet_gui_mouse_y() { return mouse_y * _mouse_factor_y; }
+
+static void _reserve_memory_for_bitmaps1(void)
 {
    background = create_bitmap(640,480);
    virtual_screen = create_bitmap(640,480);
    pause_screen = create_bitmap(640,480);
+   _mouse_factor_x = (float)TSCREEN_W / (float)SCREEN_W;
+   _mouse_factor_y = (float)TSCREEN_H / (float)SCREEN_H;
+   gui_set_screen(virtual_screen);
+   gui_mouse_x = multitet_gui_mouse_x;
+   gui_mouse_y = multitet_gui_mouse_y;
+}
 
+static void _reserve_memory_for_bitmaps2(void)
+{
    blocks = create_bitmap(((BITMAP*) datafile[BLOCKS].dat)->w,
       ((BITMAP*) datafile[BLOCKS].dat)->h);
 
@@ -149,7 +169,6 @@ static void _reserve_memory_for_bitmaps(void)
       0, 0, background->w, background->h);
    _create_pause_screen();
 }
-
 
 /* Timer routine. Have to lock it in main before using it. */
 static void _inc_ticks(void)
@@ -236,4 +255,4 @@ static void _init_scores(void)
    }
 }
 
-
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

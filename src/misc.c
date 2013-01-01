@@ -29,9 +29,10 @@ void report_progress(const char *txt, ...)
    uvszprintf(_temp, sizeof(_temp), txt, args);
    va_end(args);
 
-   acquire_screen();
-   outline_textout(screen, font, _temp, 10, prog_y, makecol(0,0,0), makecol(255,255,255));
-   release_screen();
+   printf("multitet:%s\n", _temp);
+   outline_textout(virtual_screen, font, _temp, 10, prog_y,
+		makecol(0,0,0), makecol(255,255,255));
+   stretch_virtual_screen();
    prog_y += text_height(font);
 }
 
@@ -204,17 +205,17 @@ static void _show_help(void)
 
    show_mouse(NULL);
    acquire_screen();
-   rectfill(screen, 0, 0, SCREEN_W-1, SCREEN_H-1, makecol(0,0,0));
+   rectfill(screen, 0, 0, TSCREEN_W-1, TSCREEN_H-1, makecol(0,0,0));
    
    outline_textout_centre(screen, datafile[BIG_FONT].dat,
-      get_config_text("QUICK HELP SCREEN"), 320, 10,
+      get_config_text("QUICK HELP TSCREEN"), 320, 10,
       palette_color[21], black_color);
 
    lines = get_multiple_config_text("quick_help");
    if (!lines)
       outline_textout_centre(screen, font,
          get_config_text("Internal error reading multiple lines"),
-         SCREEN_W/2, SCREEN_H/2, white_color, black_color);
+         TSCREEN_W/2, TSCREEN_H/2, white_color, black_color);
    else {
       int f;
       for (f = 0; lines[f]; f++) {
@@ -491,6 +492,4 @@ char *m_strdup(const char *text)
    return strcpy(p, text);
 }
 
-
-
-
+// vim:tabstop=3 shiftwidth=3 softtabstop=3 expandtab

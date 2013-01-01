@@ -6,9 +6,9 @@
 /* number of ticks a second has... */
 #define SECOND 30
 
-#define GAME_NAME "Multitet 1.33"
+#define GAME_NAME "Multitet 1.34"
 #define GAME_VER        1
-#define GAME_SUB_VER    33
+#define GAME_SUB_VER    34
 
 #define     STR_KEYS       "KEYS"
 #define     STR_SOUND      "SOUND"

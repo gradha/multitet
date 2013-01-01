@@ -43,8 +43,11 @@ void hot_keys(void)
 {
    if (key[KEY_F1])
       _show_help();
-   if (key[KEY_F12] || key[KEY_F10])
+   if (key[KEY_F12] || key[KEY_F10]) {
       _capture_screen();
+      while (key[KEY_F12] || key[KEY_F10])
+         yield_timeslice();
+   }
 
    if (midi_pos<0 || key[TECLA_MUSIC])
       music(0);
@@ -127,22 +130,15 @@ static void _capture_screen(void)
    int d;
    char name[30];
    const int limit = 1000;
-   BITMAP *bmp;
 
-   bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
-   if (!bmp)
-      return;
-   
    for (d = 0; d < limit; d++) {
-      uszprintf(name, sizeof(name), "CAPT%d.PCX",d);
+      uszprintf(name, sizeof(name), "multitet-capture-%02d.bmp",d);
       if (!exists(name)) {
-         save_pcx(name, bmp, datafile[PAL_MAIN].dat);
+         save_bmp(name, virtual_screen, datafile[PAL_MAIN].dat);
          play_sample(datafile[MOVE].dat, 255, 128, 1000, 0);
          d += limit;
       }
    }
-
-   destroy_bitmap(bmp);
 }
 
 /* Switches the music to the specified number and prints the correct text to
@@ -204,32 +200,38 @@ static void _show_help(void)
    drawing_mode(DRAW_MODE_TRANS,NULL,0,0);
 
    show_mouse(NULL);
-   acquire_screen();
-   rectfill(screen, 0, 0, TSCREEN_W-1, TSCREEN_H-1, makecol(0,0,0));
+
+   BITMAP *temp = create_bitmap(TSCREEN_W, TSCREEN_H);
+   blit(virtual_screen, temp, 0, 0, 0, 0, TSCREEN_W, TSCREEN_H);
+   rectfill(temp, 0, 0, TSCREEN_W-1, TSCREEN_H-1, makecol(0,0,0));
    
-   outline_textout_centre(screen, datafile[BIG_FONT].dat,
-      get_config_text("QUICK HELP TSCREEN"), 320, 10,
+   outline_textout_centre(temp, datafile[BIG_FONT].dat,
+      get_config_text("QUICK HELP SCREEN"), 320, 10,
       palette_color[21], black_color);
 
    lines = get_multiple_config_text("quick_help");
    if (!lines)
-      outline_textout_centre(screen, font,
+      outline_textout_centre(temp, font,
          get_config_text("Internal error reading multiple lines"),
          TSCREEN_W/2, TSCREEN_H/2, white_color, black_color);
    else {
       int f;
       for (f = 0; lines[f]; f++) {
-         outline_textout(screen, font, lines[f], 0, 60+f*10,
+         outline_textout(temp, font, lines[f], 0, 60+f*10,
             palette_color[8], black_color);
          free(lines[f]);
       }
       free(lines);
    }
-   outline_textout_centre(screen, datafile[BIG_FONT].dat,
+   outline_textout_centre(temp, datafile[BIG_FONT].dat,
       get_config_text("PRESS ANY KEY TO EXIT FROM THIS SCREEN"),
       320, 450, palette_color[21], black_color);
 
+   acquire_screen();
+   stretch_blit(temp, screen, 0, 0,
+      temp->w, temp->h, 0, 0, SCREEN_W, SCREEN_H);
    release_screen();
+   destroy_bitmap(temp);
    clear_keybuf();
 
    while (!keypressed()){
@@ -241,9 +243,7 @@ static void _show_help(void)
    if (active_dialog == sound_dlg)
       drawing_mode(DRAW_MODE_SOLID,NULL,0,0);
 
-   acquire_screen();
-   blit(virtual_screen,screen,0,0,0,0,640,480);
-   release_screen();
+   stretch_virtual_screen();
 /*   show_mouse(screen); */
    count_old[0] = tick_counter-timer_difference_1;
    count_old[1] = tick_counter-timer_difference_2;
@@ -260,7 +260,8 @@ void pausa(void)
    
    set_pallete(black_pallete);
    acquire_screen();
-   blit(pause_screen,screen,0,0,0,0,640,480);
+   stretch_blit(pause_screen, screen, 0, 0,
+      pause_screen->w, pause_screen->h, 0, 0, SCREEN_W, SCREEN_H);
    release_screen();
    while (key[TECLA_PAUSE])
       yield_timeslice();
@@ -285,9 +286,7 @@ void pausa(void)
 
    stop_sample(datafile[RUIDO].dat);
    set_pallete(black_pallete);
-   acquire_screen();
-   blit(virtual_screen, screen, 0, 0, 0, 0, 640, 480);
-   release_screen();
+   stretch_virtual_screen();
    while (key[TECLA_PAUSE] || key[KEY_ESC])
       yield_timeslice();
    

@@ -45,7 +45,7 @@ void select_language(void)
    _retrieve_available_languages();
 
    if (!_num_available_languages) {
-      alert("No languages", "to choose from!", "Will use english", "Oh", 0, 'o', 0);
+      //alert("No languages", "to choose from!", "Will use english", "Oh", 0, 'o', 0);
       goto finish;
    }
 

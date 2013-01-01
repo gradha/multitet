@@ -87,7 +87,7 @@ int actual_dlg_width;  /* This is the biggest text width in pixels
                         * of the actual dialog
                         */
 
-static virtual_do_dialog(DIALOG *dialog, int focus_obj)
+int virtual_do_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player = init_dialog(dialog, focus_obj);
 

@@ -4,8 +4,11 @@
 #include <allegro.h>
 
 #include "langsel.h"
+
 #include "error.h"
+#include "gui.h"
 #include "misc.h"
+#include "multitet.h"
 
 static char **_available_languages; /* This is because of the rsx version. */
 static int _num_available_languages;
@@ -37,7 +40,8 @@ void select_language(void)
    const char *lang = "en"; /* default language */
    
    set_palette(desktop_palette);
-   clear(screen);
+   clear_bitmap(virtual_screen);
+   stretch_virtual_screen();
    _retrieve_available_languages();
 
    if (!_num_available_languages) {
@@ -45,7 +49,7 @@ void select_language(void)
       goto finish;
    }
 
-   while ((f = do_dialog(_select_lang_dialog, 0)) < 0);
+   while ((f = virtual_do_dialog(_select_lang_dialog, 0)) < 0);
    lang = _available_languages[_select_lang_dialog[0].d1*2];
 
    finish:
@@ -54,6 +58,9 @@ void select_language(void)
    reload_config_texts(0);
    text_mode(-1);
    _free_available_languages();
+
+   clear_bitmap(virtual_screen);
+   stretch_virtual_screen();
 }
 
 

@@ -12,19 +12,20 @@ static void _create_title(void);
 void intro(void)
 {
    /* First logo of Gogosoftware... */
-   stretch_blit(datafile[LOGO].dat, screen, 0, 0, 320, 240, 0, 0, 640, 480);
+   stretch_blit(datafile[LOGO].dat, virtual_screen, 0, 0, 320, 240,
+      0, 0, virtual_screen->w, virtual_screen->h);
+   stretch_virtual_screen();
    fade_in(datafile[PAL_LOGO].dat, 4);
-   
+
    multitet_wait(SECOND*10);
    fade_out(4);
 
    /* Presents... */
-   acquire_screen();
-   clear_bitmap(screen);
-   textout_centre(screen, datafile[BIG_FONT].dat, get_config_text("PRESENTS..."),
-      320, 220, palette_color[255]);
-   release_screen();
-   
+   clear_bitmap(virtual_screen);
+   textout_centre(virtual_screen, datafile[BIG_FONT].dat,
+      get_config_text("PRESENTS..."), 320, 220, palette_color[255]);
+   stretch_virtual_screen();
+
    fade_in(datafile[PAL_TITLE].dat, 4);
    multitet_wait(SECOND*2);
    fade_out(4);
@@ -32,10 +33,10 @@ void intro(void)
    /* Tetris by blah blah blah... */
    _create_title();
 
-   draw_rle_sprite(virtual_screen, datafile[BMP_TITLE].dat, 
+   draw_rle_sprite(virtual_screen, datafile[BMP_TITLE].dat,
       (TSCREEN_W>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->w>>1),
       (TSCREEN_H>>1)-(((RLE_SPRITE *)datafile[BMP_TITLE].dat)->h>>1));
-                   
+
    textout_centre(virtual_screen, font,
       get_config_text("Made by Grzegorz Adam Hankiewicz"),
       320, 460, palette_color[0]);
@@ -44,10 +45,10 @@ void intro(void)
       320, 470, palette_color[0]);
 
    stretch_virtual_screen();
-   
+
    play_sample(datafile[WELCOME].dat, 255, 128, 1000, 0);
    fade_in(datafile[PAL_TITLE].dat, 1);
-   
+
    multitet_wait(SECOND*10);
    fade_out(1);
 }
@@ -94,7 +95,7 @@ void outro(void)
    lines = get_multiple_config_text("bye_bye_message");
    if (!lines)
       outline_textout_centre(screen, datafile[BIG_FONT].dat,
-         get_config_text("Internal error reading multiple lines"), 
+         get_config_text("Internal error reading multiple lines"),
          TSCREEN_W/2, TSCREEN_H/2, menu_color, black_color);
    else {
       int f;

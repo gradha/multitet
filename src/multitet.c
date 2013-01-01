@@ -55,7 +55,7 @@
 
 #include <allegro.h> /* Needed header to use Allegro */
 
-#define _WINDOWED_MARGIN            70
+#define _WINDOWED_MARGIN            0.2
 
 /* variable for _inc_ticks(); in init.c */
 volatile int tick_counter;
@@ -421,8 +421,8 @@ int main(int argc, char *argv[])
    if (get_desktop_resolution(&w, &h) == 0) {
       if (w >= 800 && h >= 600) {
          // Try to scale the screen withinn the specified bounds.
-         const int max_w = w - ((float)w / (float)h * _WINDOWED_MARGIN);
-         const int max_h = h - _WINDOWED_MARGIN;
+         const int max_w = w - ((float)w / (float)h * (h * _WINDOWED_MARGIN));
+         const int max_h = h - (h * _WINDOWED_MARGIN);
 
          float factor = max_w / (float)TSCREEN_W;
          w = TSCREEN_W * factor;
